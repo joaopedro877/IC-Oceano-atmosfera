@@ -7,6 +7,7 @@ import warnings
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 warnings.filterwarnings('ignore')
+import cartopy.feature as cfeature
 
 fig_output_dir='/home/joao/scripts/plots'
 
@@ -20,6 +21,7 @@ data_inicial = datetime.datetime(*time.strptime(data_inicial,"%d/%m/%Y")[0:3])
 data_final = datetime.datetime(*time.strptime(data_final,"%d/%m/%Y")[0:3])
 current_data = data_inicial
 print(current_data)
+states_provinces = cfeature.NaturalEarthFeature(category='cultural',name='admin_1_states_provinces_lines',scale='10m',facecolor='none')
 
 while (current_data<=data_final):
 	print(" DIA: "+current_data.strftime("%d-%m-%Y"))
@@ -38,13 +40,16 @@ while (current_data<=data_final):
 	ax = plt.axes(projection=ccrs.PlateCarree())
 	plt.contourf(lon, lat,ssh[0],60,transform=ccrs.PlateCarree(),cmap='RdBu_r')
 	cb=plt.colorbar()
-	plt.quiver(lon[::10],lat[::10],u[::10, ::10],v[::10, ::10],scale=0.75,scale_units="xy",units="inches",width=0.008,minlength=0.1,linewidth=2)
+	plt.quiver(lon[::10],lat[::10],u[::10, ::10],v[::10, ::10],scale=0.75,scale_units="xy",units="inches",width=0.008,minlength=0.1,linewidth=2,)
 	ax.coastlines()
+	ax.add_feature(states_provinces,edgecolor='black',linewidth=0.6)
 	g = ax.gridlines(crs=ccrs.PlateCarree(), linestyle='-.', color='gray', draw_labels=True)
 	g.ylabels_right = False
 	g.xlabels_top = False	
 	cb.ax.set_xlabel('SSH')
-	plt.suptitle('SSH '+'e '+'velocidade da corrente na superfície'+current_data.strftime("%d-%m-%Y"))
-	plt.savefig('/home/joao/scripts/plots/ssh'+'/'+'ssh_corrente'+current_data.strftime("%d-%m-%Y"))
+	plt.suptitle('SSH '+'e '+'velocidade da corrente na superfície -'+current_data.strftime("%d-%m-%Y"))
+	plt.tight_layout()
+	plt.savefig('/home/joao/scripts/plots/ssh'+'/'+'ssh_corrente -'+current_data.strftime("%d-%m-%Y"))
+	plt.show()
 	current_data = current_data + datetime.timedelta(days=1)
 	plt.close()
