@@ -30,6 +30,8 @@ while (current_data<=data_final):
 	current_data = current_data + datetime.timedelta(days=1)
 	ds.close()
 
-print(sst)
+#print(sst)
+import psutil
+print("memória usada pelo concatenate: "+str(psutil.Process().memory_info().rss / (1024 * 1024)))
 # tentar usar o np.concatenate e depois comparar as velocidades
 

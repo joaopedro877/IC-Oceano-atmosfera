@@ -41,8 +41,11 @@ while (current_data<=data_final):
 #print(lista_temps)
 
 sst=np.ma.stack(lista_temps,2)
-print(sst)
-#exit()
+#print(sst)
+import psutil
+print("memória usada pelo stack: "+ str(psutil.Process().memory_info().rss / (1024 * 1024)))
+
+exit()
 print(sst.ndim)
 sst_media=np.mean(sst,axis=2)
 sst_desvio=np.std(sst,axis=2)
