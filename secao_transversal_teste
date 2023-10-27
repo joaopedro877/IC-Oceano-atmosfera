@@ -1,0 +1,19 @@
+import netCDF4 as nc
+import datetime
+import time
+import warnings
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+warnings.filterwarnings('ignore')
+
+fig_output_dir='/home/joao/scripts/plots'
+
+data_inicial = "01/01/2008"
+data_final = "03/01/2008"
+
+
+dir_cfs = '/home/joao/SAIDAS'
+
+data_inicial = datetime.datetime(*time.strptime(data_inicial,"%d/%m/%Y")[0:3])
+data_final = datetime.datetime(*time.strptime(data_final,"%d/%m/%Y")[0:3])
+current_data = data_inicial
