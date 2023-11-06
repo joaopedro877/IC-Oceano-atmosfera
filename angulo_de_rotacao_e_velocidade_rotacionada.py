@@ -7,6 +7,8 @@ import cartopy.crs as ccrs
 warnings.filterwarnings('ignore')
 import numpy as np
 import geopy.distance
+from scipy import interpolate
+import scipy.io
 
 fn='/home/joao/SAIDAS/2008010100/archv.2008_002_00_3zu.nc'
 
@@ -37,6 +39,42 @@ theta = np.deg2rad(ang)
 print(ang)
 print(theta)
 
-#com o angulo theta, é possível calcular a velocidade rotacionada
+#com o angulo theta, é possível calcular a velocidade rotacionada (apenas para esta seção, caso mude o angulo eu preciso calcular outro valor de v')
 v_linha=v*np.cos(ang)-u*np.sin(ang)
 
+print(np.where(lat==p1[0]))
+#lat[658]
+print(np.where(lat==p2[0]))
+#lat[641]
+lat_sec=lat[641:658]
+
+
+print(np.where(lon==p1[1]))
+#lon[451]
+print(np.where(lon==p2[1]))
+#lon[516]
+
+lon_sec=lon[451:516]
+
+
+#selecionando e plotando a seção transversal inclinada, mas sem interpolar
+v_sec=v_linha[:,641:658,451:516:4]
+print(v_sec)
+v_teste=[]
+for i in range(17):
+    v_teste.append(v_sec[0:19,i,i])
+
+v_teste_array2=np.vstack(v_teste).T
+
+
+levels=np.linspace(-1,1,100)
+plt.contourf(lon[451:519:4],-depth[0:19],v_teste_array2[:,:],60,levels=levels,cmap='jet')
+plt.colorbar()
+plt.show()
+
+#As velocidades devem ser interpoladas, já que as dimensões lat e lon possuem tamanhos diferentes
+
+#como interpolar?
+v_interpolada_teste=interpolate.RegularGridInterpolator(lon_sec,lat_sec,v_sec[0,:,:],method="linear")
+print(v_interpolada_teste)
+print(len(v_sec[0,:,:]))
