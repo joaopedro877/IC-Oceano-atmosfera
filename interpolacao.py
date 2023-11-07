@@ -9,7 +9,6 @@ import numpy as np
 import geopy.distance
 from scipy import interpolate
 import scipy.io
-from scipy.ndimage import zoom
 
 fn='/home/joao/Saidas/2008010100/archv.2008_002_00_3zu.nc'
 
@@ -43,57 +42,23 @@ print(theta)
 #com o angulo theta, é possível calcular a velocidade rotacionada (apenas para esta seção, caso mude o angulo eu preciso calcular outro valor de v')
 v_linha=v*np.cos(theta)-u*np.sin(theta)
 
-print(np.where(lat==p1[0]))
-#lat[658]
-print(np.where(lat==p2[0]))
-#lat[641]
-lat_sec=lat[641:658]
 
 
-print(np.where(lon==p1[1]))
-#lon[451]
-print(np.where(lon==p2[1]))
-#lon[516]
+#interpolacao do chatgpt
+import numpy as np
+from scipy.ndimage import zoom
 
-lon_sec=lon[451:516]
+# Supondo que 'array_3d' é o seu array original com dimensões 33x17x65
+# Vamos redimensioná-lo para 33x65x65 usando interpolação linear.
 
+original_shape = array_3d.shape
+new_shape = (original_shape[0], 65, 65)
 
-#selecionando e plotando a seção transversal inclinada, mas sem interpolar
-v_sec=v_linha[:,641:658,451:516:4]
-print(v_sec)
-v_teste=[]
-for i in range(17):
-    v_teste.append(v_sec[0:19,i,i])
-
-v_teste_array2=np.vstack(v_teste).T
-
-
-levels=np.linspace(-1,1,100)
-plt.contourf(lon[451:519:4],-depth[0:19],v_teste_array2[:,:],60,levels=levels,cmap='jet')
-plt.colorbar()
-plt.suptitle("V rotacionada sem interpolação")
-plt.show()
-
-#As velocidades devem ser interpoladas, já que as dimensões lat e lon possuem tamanhos diferentes
-
-#como interpolar?
-v_sec2=v_linha[:,641:658,451:516]
-v_interp=np.zeros_like(v_sec)
-
-original_shape=v_sec2.shape
-new_shape=(original_shape[0],65,65)
+# Fator de redimensionamento para cada dimensão
 zoom_factors = (1, new_shape[1] / original_shape[1], new_shape[2] / original_shape[2])
 
 # Redimensionar o array usando interpolação linear
-resized_array = zoom(v_sec2, (zoom_factors), order=1)
+resized_array = zoom(array_3d, zoom_factors, order=1)
 
-v_teste_interp=[]
-for i in range(65):
-    v_teste_interp.append(resized_array[0:19,i,i])
+# Agora 'resized_array' contém o array redimensionado com dimensões 33x65x65 usando interpolação linear.
 
-v_teste_interp2=np.vstack(v_teste_interp).T
-
-plt.contourf(lon[451:516],-depth[0:19],v_teste_interp2[:,:],60,levels=levels,cmap='jet')
-plt.colorbar()
-plt.suptitle("V rotacionada com interpolação")
-plt.show()
