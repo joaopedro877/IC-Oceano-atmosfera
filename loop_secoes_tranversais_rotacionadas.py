@@ -21,13 +21,12 @@ data_inicial = datetime.datetime(*time.strptime(data_inicial,"%d/%m/%Y")[0:3])
 data_final = datetime.datetime(*time.strptime(data_final,"%d/%m/%Y")[0:3])
 current_data = data_inicial
 
-temp=np.empty([701,553])
+
 lista_v=[]
 counter=0
 
 #concatenando os dados de v
 while (current_data<=data_final):
-    print(" DIA: "+current_data.strftime("%d-%m-%Y"))
     fn=(dir_cfs+"/"+current_data.strftime("%Y%m%d%H")+'/archv.'+ str(data_inicial.strftime("%Y"))+'_'+str(int(current_data.strftime("%d"))+1).zfill(3)+'_00_3zu.nc')
     ds=nc.Dataset(fn)
     lat=ds['Latitude'][:]
@@ -44,6 +43,34 @@ while (current_data<=data_final):
 v=np.ma.stack(lista_v,3)
 v_media=np.mean(v,axis=3)
 
+#fazendo o mesmo para u
+data_inicial = "01/01/2008"
+data_final = "31/01/2008"
+
+dir_cfs = '/home/joao/SAIDAS'
+
+data_inicial = datetime.datetime(*time.strptime(data_inicial,"%d/%m/%Y")[0:3])
+data_final = datetime.datetime(*time.strptime(data_final,"%d/%m/%Y")[0:3])
+current_data = data_inicial
+
+lista_u=[]
+counter=0
+while (current_data<=data_final):
+    fn=(dir_cfs+"/"+current_data.strftime("%Y%m%d%H")+'/archv.'+ str(data_inicial.strftime("%Y"))+'_'+str(int(current_data.strftime("%d"))+1).zfill(3)+'_00_3zu.nc')
+    ds=nc.Dataset(fn)
+    lat=ds['Latitude'][:]
+    lon=ds['Longitude'][:]
+    depth=ds['Depth'][:]
+    #temperatura
+    #criando variaveis dinamicas
+    globals()["u"+str(counter)]=ds['u'][0,:,:,:]
+    lista_u.append((globals()["u"+str(counter)]))
+    counter =counter + 1
+    current_data = current_data + datetime.timedelta(days=1)
+    ds.close()
+#media da velocidade u
+u=np.ma.stack(lista_u,3)
+u_media=np.mean(u,axis=3)
 ######################################################### Coordenadas mais próximas das calculadas por Felipe ########################################
 
 
@@ -75,3 +102,67 @@ for i in range(len(p1)):
     
 
 print(theta)
+
+################################################# plotando as seções transversais em um loop ##########################################################
+#teste
+#print(lat)
+levels=np.linspace(-1,1,100)
+print(len(p1))
+print(len(theta))
+
+for i in range(len(p1)):
+	v_linha=v_media*np.cos(theta[i])-u_media*np.sin(theta[i])
+	lat1=int(np.where(lat==p1[i][0])[0])
+	lat2=int(np.where(lat==p2[i][0])[0])
+	lon1=int(np.where(lon==p1[i][1])[0])
+	lon2=int(np.where(lon==p2[i][1])[0])
+	print("o lat1 é :" + str(lat1) + "\n e o lat2 é :" + str(lat2))
+	if lat1==lat2:
+		plt.contourf(lon[lon1:lon2],-depth[0:19],v_linha[0:19,lat1,lon1:lon2],60,levels=levels,cmap='jet')
+		plt.suptitle(str(lat[lat1]))
+		plt.colorbar()
+		plt.show()
+	else:
+		v_sec=v_linha[:,lat2:lat1,lon1:lon2]
+		original_shape=v_sec.shape
+		print(original_shape)
+		#a variacao de longitude sera sempre maior que a de latitude?
+		new_shape=(original_shape[0],(lon2-lon1),(lon2-lon1))
+		print(new_shape)
+		zoom_factors=(1,new_shape[1]/original_shape[1],new_shape[2] / original_shape[2])
+		print(zoom_factors)
+		resized_array=zoom(v_sec,(zoom_factors),order=1)
+		v_interp=[]
+		for i in range(lon2-lon1):
+			v_interp.append(resized_array[0:19,i,i])
+		v_interp2=np.vstack(v_interp).T
+		print(v_interp2.shape)
+		plt.contourf(lon[lon1:lon2],-depth[0:19],v_interp2[:,:],60,levels=levels,cmap='jet')
+		plt.suptitle(str(lat[lat1]))
+		plt.colorbar()
+		plt.show()
+
+exit()
+
+exit()
+v_sec2=v_linha[:,641:658,451:516]
+v_interp=np.zeros_like(v_sec)
+
+original_shape=v_sec2.shape
+new_shape=(original_shape[0],65,65)
+zoom_factors = (1, new_shape[1] / original_shape[1], new_shape[2] / original_shape[2])
+
+# Redimensionar o array usando interpolação linear
+resized_array = zoom(v_sec2, (zoom_factors), order=1)
+
+v_teste_interp=[]
+for i in range(65):
+    v_teste_interp.append(resized_array[0:19,i,i])
+
+v_teste_interp2=np.vstack(v_teste_interp).T
+
+plt.contourf(lon[451:516],-depth[0:19],v_teste_interp2[:,:],60,levels=levels,cmap='jet')
+plt.colorbar()
+plt.suptitle("V rotacionada com interpolação")
+plt.show()
+
