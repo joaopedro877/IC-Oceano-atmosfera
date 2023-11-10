@@ -11,6 +11,8 @@ from scipy import interpolate
 import scipy.io
 from scipy.ndimage import zoom
 
+
+
 #################################################################   Média ############################################################################
 data_inicial = "01/01/2008"
 data_final = "31/01/2008"
@@ -106,6 +108,21 @@ print(theta)
 ################################################# plotando as seções transversais em um loop ##########################################################
 #teste
 #print(lat)
+
+fn='/home/joao/SAIDAS/2008010100/archv.2008_002_00_3zu.nc'
+
+ds=nc.Dataset(fn)
+print(ds.variables.keys())
+for var in ds.variables.values():
+    print(var)
+#vendo as dimensoes das variaves
+for dim in ds.dimensions.values():
+    print(dim)
+
+lat=ds['Latitude'][:]
+lon=ds['Longitude'][:]
+depth=ds['Depth'][:]
+
 levels=np.linspace(-1,1,100)
 print(len(p1))
 print(len(theta))
@@ -117,52 +134,52 @@ for i in range(len(p1)):
 	lon1=int(np.where(lon==p1[i][1])[0])
 	lon2=int(np.where(lon==p2[i][1])[0])
 	print("o lat1 é :" + str(lat1) + "\n e o lat2 é :" + str(lat2))
+	print("o lon1 é :" + str(lon1) + "\n e o lon2 é :" + str(lon2))
 	if lat1==lat2:
+		print(v_linha[0,0,0])
 		plt.contourf(lon[lon1:lon2],-depth[0:19],v_linha[0:19,lat1,lon1:lon2],60,levels=levels,cmap='jet')
 		plt.suptitle(str(lat[lat1]))
 		plt.colorbar()
 		plt.show()
-	else:
+	elif (lat1>lat2) and (lon2>lon1):
 		v_sec=v_linha[:,lat2:lat1,lon1:lon2]
+		v_sec[v_sec==1.2676506e+30] = np.nan
 		original_shape=v_sec.shape
-		print(original_shape)
-		#a variacao de longitude sera sempre maior que a de latitude?
+		print(lon2-lon1)
 		new_shape=(original_shape[0],(lon2-lon1),(lon2-lon1))
-		print(new_shape)
+		print(new_shape[1])
+		print(original_shape[1])
 		zoom_factors=(1,new_shape[1]/original_shape[1],new_shape[2] / original_shape[2])
-		print(zoom_factors)
 		resized_array=zoom(v_sec,(zoom_factors),order=1)
 		v_interp=[]
-		for i in range(lon2-lon1):
-			v_interp.append(resized_array[0:19,i,i])
+		for j in range((lon2-lon1)):
+			v_interp.append(resized_array[0:19,j,j])
 		v_interp2=np.vstack(v_interp).T
 		print(v_interp2.shape)
+		print(v_interp2[0,0])
+		plt.contourf(lon[lon1:lon2],-depth[0:19],v_interp2[:,:],60,levels=levels,cmap='jet')
+		plt.suptitle(str(lat[lat1]))
+		plt.colorbar()
+		plt.show()
+	elif (lat2>lat1) and (lon2>lon1):
+		v_sec=v_linha[:,lat1:lat2,lon1:lon2]
+		v_sec[v_sec==1.2676506e+30] = np.nan
+		original_shape=v_sec.shape
+		print(lon2-lon1)
+		new_shape=(original_shape[0],(lon2-lon1),(lon2-lon1))
+		print(new_shape[1])
+		print(original_shape[1])
+		zoom_factors=(1,new_shape[1]/original_shape[1],new_shape[2] / original_shape[2])
+		resized_array=zoom(v_sec,(zoom_factors),order=1)
+		v_interp=[]
+		for j in range((lon2-lon1)):
+			v_interp.append(resized_array[0:19,j,j])
+		v_interp2=np.vstack(v_interp).T
+		print(v_interp2.shape)
+		print(v_interp2[0,0])
 		plt.contourf(lon[lon1:lon2],-depth[0:19],v_interp2[:,:],60,levels=levels,cmap='jet')
 		plt.suptitle(str(lat[lat1]))
 		plt.colorbar()
 		plt.show()
 
-exit()
-
-exit()
-v_sec2=v_linha[:,641:658,451:516]
-v_interp=np.zeros_like(v_sec)
-
-original_shape=v_sec2.shape
-new_shape=(original_shape[0],65,65)
-zoom_factors = (1, new_shape[1] / original_shape[1], new_shape[2] / original_shape[2])
-
-# Redimensionar o array usando interpolação linear
-resized_array = zoom(v_sec2, (zoom_factors), order=1)
-
-v_teste_interp=[]
-for i in range(65):
-    v_teste_interp.append(resized_array[0:19,i,i])
-
-v_teste_interp2=np.vstack(v_teste_interp).T
-
-plt.contourf(lon[451:516],-depth[0:19],v_teste_interp2[:,:],60,levels=levels,cmap='jet')
-plt.colorbar()
-plt.suptitle("V rotacionada com interpolação")
-plt.show()
-
+#preciso mudar o fill value para que não dê erro 
