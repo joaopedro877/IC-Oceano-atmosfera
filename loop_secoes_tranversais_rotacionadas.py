@@ -29,6 +29,7 @@ counter=0
 
 #concatenando os dados de v
 while (current_data<=data_final):
+    print(" DIA: "+current_data.strftime("%d-%m-%Y"))
     fn=(dir_cfs+"/"+current_data.strftime("%Y%m%d%H")+'/archv.'+ str(data_inicial.strftime("%Y"))+'_'+str(int(current_data.strftime("%d"))+1).zfill(3)+'_00_3zu.nc')
     ds=nc.Dataset(fn)
     lat=ds['Latitude'][:]
@@ -43,7 +44,7 @@ while (current_data<=data_final):
 
 #media da velocidade v
 v=np.ma.stack(lista_v,3)
-v_media=np.mean(v,axis=3)
+v_media=np.nanmean(v,axis=3)
 
 #fazendo o mesmo para u
 data_inicial = "01/01/2008"
@@ -72,7 +73,7 @@ while (current_data<=data_final):
     ds.close()
 #media da velocidade u
 u=np.ma.stack(lista_u,3)
-u_media=np.mean(u,axis=3)
+u_media=np.nanmean(u,axis=3)
 ######################################################### Coordenadas mais próximas das calculadas por Felipe ########################################
 
 
