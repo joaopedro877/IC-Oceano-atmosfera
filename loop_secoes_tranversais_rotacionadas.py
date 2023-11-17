@@ -128,6 +128,18 @@ levels=np.linspace(-1,1,100)
 print(len(p1))
 print(len(theta))
 
+#plotando as seções
+ax = plt.axes(projection=ccrs.PlateCarree())
+ax.coastlines(resolution='10m')
+g = ax.gridlines(crs=ccrs.PlateCarree(), linestyle='-.', color='gray', draw_labels=True)
+g.ylabels_right = False
+g.xlabels_top = False
+
+for i in range(len(p1)):
+	ax.plot([p1[i][1],p2[i][1]], [p1[i][0],p2[i][0]],transform=ccrs.PlateCarree())
+
+plt.show()
+
 for i in range(len(p1)):
 	v_linha=v_media*np.cos(theta[i])-u_media*np.sin(theta[i])
 	lat1=int(np.where(lat==p1[i][0])[0])
@@ -144,7 +156,6 @@ for i in range(len(p1)):
 		plt.show()
 	elif (lat1>lat2) and (lon2>lon1):
 		v_sec=v_linha[:,lat2:lat1,lon1:lon2]
-		v_sec[v_sec==1.2676506e+30] = np.nan
 		original_shape=v_sec.shape
 		print(lon2-lon1)
 		new_shape=(original_shape[0],(lon2-lon1),(lon2-lon1))
@@ -164,7 +175,6 @@ for i in range(len(p1)):
 		plt.show()
 	elif (lat2>lat1) and (lon2>lon1):
 		v_sec=v_linha[:,lat1:lat2,lon1:lon2]
-		v_sec[v_sec==1.2676506e+30] = np.nan
 		original_shape=v_sec.shape
 		print(lon2-lon1)
 		new_shape=(original_shape[0],(lon2-lon1),(lon2-lon1))
@@ -183,4 +193,4 @@ for i in range(len(p1)):
 		plt.colorbar()
 		plt.show()
 
-#preciso mudar o fill value para que não dê erro 
+
