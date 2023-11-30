@@ -143,7 +143,7 @@ for i in range(len(p1)):
 		plt.contourf(lon[lon1:lon2],-depth[0:19],v_linha[0:19,lat1,lon1:lon2],60,levels=levels,cmap='jet')
 		plt.suptitle(str(lat[lat1]))
 		plt.colorbar()
-		#plt.show()
+		plt.show()
 		transporte_Sv.append(np.nansum((v_linha[0:12,lat1,lon1:lon2]*4519*10)/(10**6)))
 	elif (lat1>lat2) and (lon2>lon1):
 		v_sec=v_linha[:,lat2:lat1,lon1:lon2]
@@ -158,7 +158,7 @@ for i in range(len(p1)):
 		plt.contourf(lon[lon1:lon2],-depth[0:19],v_interp2[:,:],60,levels=levels,cmap='jet')
 		plt.suptitle(str(lat[lat1]))
 		plt.colorbar()
-		#plt.show()
+		plt.show()
 		transporte_Sv.append(np.nansum((v_interp2[0:12,:]*4519*10)/(10**6)))
 	elif (lat2>lat1) and (lon2>lon1):
 		v_sec=v_linha[:,lat1:lat2,lon1:lon2]
@@ -173,12 +173,12 @@ for i in range(len(p1)):
 		plt.contourf(lon[lon1:lon2],-depth[0:19],v_interp2[:,:],60,levels=levels,cmap='jet')
 		plt.suptitle(str(lat[lat1]))
 		plt.colorbar()
-		#plt.show()
+		plt.show()
 		transporte_Sv.append(np.nansum((v_interp2[0:12,:]*4519*10)/(10**6)))
 
 print(transporte_Sv)
 print(len(transporte_Sv))
-
+plt.close()
 ax = plt.axes(projection=ccrs.PlateCarree())
 ax.coastlines(resolution='10m')
 g = ax.gridlines(crs=ccrs.PlateCarree(), linestyle='-.', color='gray', draw_labels=True)
@@ -188,7 +188,7 @@ g.xlabels_top = False
 for i in range(len(transporte_Sv)):
 	ax.plot([p1[i][1],p2[i][1]], [p1[i][0],p2[i][0]],transform=ccrs.PlateCarree())
 	ax.plot((p2[i][1]),(p2[i][0]),color='red', marker='o',transform=ccrs.PlateCarree())
-	ax.text((p2[i][1]),(p2[i][0]),str(transporte_Sv[i]),fontsize =15,horizontalalignment='left',transform=ccrs.PlateCarree())
+	ax.text((p2[i][1]),(p2[i][0]),str(round(transporte_Sv[i],2)),fontsize =10,horizontalalignment='left',transform=ccrs.PlateCarree())
 plt.show()
 
 '''
